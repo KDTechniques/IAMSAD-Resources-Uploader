@@ -41,6 +41,7 @@ struct AvatarIconsPickerView: View {
             }
         } footer : {
             Text("Multiple icons can be selected.")
+                .padding(.bottom, 50)
         }
     }
 }
