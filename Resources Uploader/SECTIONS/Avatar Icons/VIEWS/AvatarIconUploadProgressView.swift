@@ -8,89 +8,49 @@
 import SwiftUI
 
 struct AvatarIconUploadProgressView: View {
-    // MARK: - PROPERTIES
-    @Environment(AvatarIconsUploaderViewModel.self) private var vm
-    let item: AvatarIconsUploadProgressModel
-    
-    // MARK: - INITIALIZER
-    init(item: AvatarIconsUploadProgressModel) {
-        self.item = item
-    }
-    
     // MARK: - BODY
     var body: some View {
-        VStack {
-            symbolImage
-            descriptionText
+        HStack {
+            ForEach(AvatarIconsUploadProgressTypes.allCases, id: \.self) { type in
+                AvatarIconUploadProgressItemNArrowView(type: type)
+            }
         }
+        .padding(.vertical)
     }
 }
 
 // MARK: - PREVIEWS
 #Preview("AvatarIconUploadProgressView") {
     @Previewable @State var vm: AvatarIconsUploaderViewModel = .init()
-    AvatarIconUploadProgressView(item: (vm.selectedProgressType ?? AvatarIconsUploadProgressTypes.uploading).model)
-        .environment(vm)
-        .onTapGesture {
-            vm.selectedProgressType = AvatarIconsUploadProgressTypes.allCases.randomElement() ?? .uploading
+    VStack {
+        Form {
+            Section {
+                AvatarIconUploadProgressView()
+            } header: {
+                Text("Progress")
+            }
+            .onTapGesture {
+                vm.selectedProgressType = AvatarIconsUploadProgressTypes
+                    .allCases
+                    .randomElement() ?? .uploading_1
+            }
         }
-    
-}
-
-// MARK: EXTENSIONS
-
-// MARK: - EXT AvatarIconUploadProgressView
-extension AvatarIconUploadProgressView {
-    // MARK: - symbolImage
-    private var symbolImage: some View {
-        Image(systemName: item.systemImageName)
-            .resizable()
-            .scaledToFit()
-            .frame(width: 30, height: 30)
-            .foregroundStyle(getForegroundColor())
-            .symbolRenderingMode(.hierarchical)
-            .setSymbolEffectViewModifier(item, isActive: isActive())
-    }
-    
-    // MARK: - descriptionText
-    private var descriptionText: some View {
-        Text(item.description)
-            .font(.caption2)
-            .multilineTextAlignment(.center)
-            .foregroundStyle(getForegroundColor())
-    }
-    
-    // MARK: FUNCTIONS
-    
-    // MARK: - isActive
-    private func isActive() -> Bool {
-        return item.type == vm.selectedProgressType?.model.type
-    }
-    
-    // MARK: - getForegroundColor
-    private func getForegroundColor() -> Color {
-        isActive()
-        ? item.type == .completed ? .green : .white
-        : .secondary
-    }
-}
-
-// MARK: - View
-fileprivate extension View {
-    // MARK: - FUNCTIONS
-    
-    // MARK: - EXT setSymbolEffectViewModifier
-    @ViewBuilder
-    func setSymbolEffectViewModifier(_ item: AvatarIconsUploadProgressModel, isActive: Bool) -> some View {
-        switch item.effect {
-        case .bounce:
-            self.symbolEffect(.bounce, options: item.behavior, isActive: isActive)
-        case .wiggle:
-            self.symbolEffect(.wiggle, options: item.behavior, isActive: isActive)
-        case .rotate:
-            self.symbolEffect(.rotate, options: item.behavior, isActive: isActive)
-        case .pulse:
-            self.symbolEffect(.pulse, options: item.behavior, isActive: isActive)
+        
+        // Test Button
+        Button("test upload") {
+            guard let selectedProgressType = vm.selectedProgressType else {
+                vm.selectedProgressType = .uploading_1
+                return
+            }
+            
+            guard let index: Int = vm.progressTypesArray.firstIndex(of: selectedProgressType),
+                  index != vm.progressTypesArray.count-1 else {
+                vm.selectedProgressType = nil
+                return
+            }
+            
+            vm.selectedProgressType = vm.progressTypesArray[index+1]
         }
     }
+    .environment(vm)
 }

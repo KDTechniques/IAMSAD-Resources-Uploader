@@ -17,6 +17,7 @@ final class AvatarIconsUploaderViewModel {
     var selectedImages: [UIImage] = []
     var selectedPosition: AvatarPositionTypes = .center
     var selectedProgressType: AvatarIconsUploadProgressTypes?
+    let progressTypesArray: [AvatarIconsUploadProgressTypes] = AvatarIconsUploadProgressTypes.allCases
     
     // MARK: - INITIALIZER
     init() { }
@@ -30,6 +31,22 @@ final class AvatarIconsUploaderViewModel {
     
     func upload() {
         // TODO: upload to firebase storage code goes here...
+        
+        
+#if DEBUG
+        // mock
+        guard let selectedProgressType = selectedProgressType else {
+            selectedProgressType = .uploading_1
+            return
+        }
+        
+        guard let index: Int = progressTypesArray.firstIndex(of: selectedProgressType),
+              index != progressTypesArray.count-1 else {
+            self.selectedProgressType = nil
+            return
+        }
+        
+        self.selectedProgressType = progressTypesArray[index+1]
+#endif
     }
-    
 }

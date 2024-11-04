@@ -15,49 +15,28 @@ struct AvatarIconsUploaderFormView: View {
     // MARK: - BODY
     var body: some View {
         NavigationStack {
-            Form {
-                Section {
-                    // here...
-                } header: {
-                    Text("Progress")
-                }
+            VStack(spacing: 0) {
+                // Progress
+                AvatarIconUploadProgressView()
                 
-                // Collection Name
-                Section {
-                    TextField("Type here", text: $vm.collectionNameTextfieldText)
-                } header: {
-                    Text("Collection Name")
-                } footer: {
-                    Text("Keep it short. ex: Featured, Super Heroes.")
-                }
+                Divider()
                 
-                // Description
-                Section {
-                    TextField("Type here", text: $vm.descriptionTextfieldText, axis: .vertical)
-                } header: {
-                    Text("Description")
-                } footer: {
-                    Text("Keep it to max. 2 sentences.")
+                Form {
+                    // Collection Name
+                    AvatarCollectionNameView(vm: vm)
+                    
+                    // Description
+                    AvatarCollectionDescriptionView(vm: vm)
+                    
+                    // Avatar Count
+                    AvatarIconsCountTextView()
+                    
+                    // Image Preview
+                    imagePreviewSection
+                    
+                    // Photo Picker
+                    AvatarIconsPickerView(vm: vm)
                 }
-                
-                // Avatar Count
-                Section {
-                    Text("Avatar count: \(vm.avatarCount)")
-                } footer: {
-                    Text("Avatar count is based on number of avatar images you select.")
-                }
-                
-                // Image Preview
-                Section {
-                    AvatarImagePositionPickerView(vm: vm)
-                    HorizontalAvatarImagesScrollView()
-                } header: {
-                    Text("Avatar Preview")
-                } footer: {
-                    Text("Use segment picker to find the best image position for the collection.")
-                }
-                
-                AvatarIconsPickerView(vm: vm)
             }
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
@@ -76,6 +55,18 @@ struct AvatarIconsUploaderFormView: View {
 }
 
 extension AvatarIconsUploaderFormView {
+    // MARK: - imagePreviewSection
+    private var imagePreviewSection: some View {
+        Section {
+            AvatarImagePositionPickerView(vm: vm)
+            HorizontalAvatarImagesScrollView()
+        } header: {
+            Text("Avatar Preview")
+        } footer: {
+            Text("Use segment picker to find the best image position for the collection.")
+        }
+    }
+    
     // MARK: - uploadButton
     private var uploadButton: some View {
         Button("Upload") {

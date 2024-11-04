@@ -13,7 +13,7 @@ struct HorizontalAvatarImagesScrollView: View {
     
     // MARK: - BODY
     var body: some View {
-        ScrollView(.horizontal) {
+        ScrollView(.horizontal, showsIndicators: false) {
             HStack {
                 if vm.selectedImages.isEmpty {
                     ForEach(0...10, id: \.self) { _ in
