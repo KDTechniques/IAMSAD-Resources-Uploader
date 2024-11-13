@@ -11,7 +11,7 @@ import SwiftUI
 struct Resources_UploaderApp: App {
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            AvatarIconsPickerView(vm: .init())
         }
     }
 }
