@@ -11,6 +11,7 @@ import PhotosUI
 struct AvatarIconsPickerView: View {
     // MARK: - PROPERTIES
     @Bindable var vm: AvatarIconsUploaderViewModel
+    @State private var isPresentedPhototPicker: Bool = false
     
     // MARK: - INITIALIZER
     init(vm: AvatarIconsUploaderViewModel) {
@@ -20,24 +21,12 @@ struct AvatarIconsPickerView: View {
     // MARK: - BODY
     var body: some View {
         Section {
-            PhotosPicker(
-                selection: $vm.selectedItems,
-                matching: .images,
-                photoLibrary: .shared()
-            ) {
-                Text("Select Avatars")
+            Button("Select Avatars") {
+                isPresentedPhototPicker = true
             }
-            .onChange(of: vm.selectedItems) { _, newItems in
-                vm.selectedImages = []
-                
-                for item in newItems {
-                    Task {
-                        if let data = try? await item.loadTransferable(type: Data.self),
-                           let uiImage = UIImage(data: data) {
-                            vm.selectedImages.append(uiImage)
-                        }
-                    }
-                }
+            .sheet(isPresented: $isPresentedPhototPicker) {
+                PhotoPickerView(fileName_ImageDataDictionary: $vm.selectedItems)
+                    .ignoresSafeArea()
             }
         } footer : {
             Text("Multiple icons can be selected.")

@@ -13,8 +13,12 @@ final class AvatarIconsUploaderViewModel {
     var collectionNameTextfieldText: String = ""
     var descriptionTextfieldText: String = ""
     var avatarCount: Int = 0
-    var selectedItems: [PhotosPickerItem] = [] { didSet { setAvatarCount() } }
-    var selectedImages: [UIImage] = []
+    var selectedItems: [String:Data] = [:] { didSet { setAvatarCount() } }
+    @ObservationIgnored var selectedImages: [UIImage] {
+        return selectedItems.values.compactMap { data in
+            UIImage(data: data)
+        }
+    }
     var selectedPosition: AvatarPositionTypes = .center
     var selectedProgressType: AvatarIconsUploadProgressTypes?
     let progressTypesArray: [AvatarIconsUploadProgressTypes] = AvatarIconsUploadProgressTypes.allCases
@@ -29,9 +33,42 @@ final class AvatarIconsUploaderViewModel {
         avatarCount = selectedItems.count
     }
     
+    // MARK: - collectionNameValidation
+    private func collectionNameValidation() -> Bool {
+        return !collectionNameTextfieldText.isEmpty
+    }
+    
+    // MARK: - descriptionValidation
+    private func descriptionValidation() -> Bool {
+        return !descriptionTextfieldText.isEmpty
+    }
+    
+    // MARK: - avatarCountValidation
+    private func avatarCountValidation() -> Bool {
+        return avatarCount != 0
+    }
+    
+    // MARK: - ImageValidation
+    private func ImageValidation() -> Bool {
+        !selectedItems.isEmpty
+    }
+    
+    // MARK: - formValidation
+    private func formValidation() -> Bool {
+        guard collectionNameValidation(),
+              descriptionValidation(),
+              avatarCountValidation() else { return false }
+        return true
+    }
+    
+    // MARK: - upload
     func upload() {
         // TODO: upload to firebase storage code goes here...
-        
+        guard formValidation() else {
+            // Show an alert here...
+            print("Form validation failed!")
+            return
+        }
         
 #if DEBUG
         // mock

@@ -93,6 +93,8 @@ struct PhotoPickerView: UIViewControllerRepresentable {
         var configuration = PHPickerConfiguration()
         configuration.filter = .images
         configuration.selectionLimit = 0 // Allow multiple selections
+        configuration.selection = .ordered
+        configuration.preferredAssetRepresentationMode = .current
         
         let picker = PHPickerViewController(configuration: configuration)
         picker.delegate = context.coordinator
