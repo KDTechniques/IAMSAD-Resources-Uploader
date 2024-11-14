@@ -24,7 +24,7 @@ struct AvatarIconsUploaderFormView: View {
                 Form {
                     // Collection Name
                     AvatarCollectionNameView(vm: vm)
-                    
+                        
                     // Description
                     AvatarCollectionDescriptionView(vm: vm)
                     
@@ -37,6 +37,7 @@ struct AvatarIconsUploaderFormView: View {
                     // Photo Picker
                     AvatarIconsPickerView(vm: vm)
                 }
+                .scrollIndicators(.hidden)
             }
             .toolbar {
                 ToolbarItem(placement: .topBarTrailing) {
