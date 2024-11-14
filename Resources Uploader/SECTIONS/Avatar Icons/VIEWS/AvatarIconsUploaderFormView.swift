@@ -24,7 +24,7 @@ struct AvatarIconsUploaderFormView: View {
                 Form {
                     // Collection Name
                     AvatarCollectionNameView(vm: vm)
-                    
+                        
                     // Description
                     AvatarCollectionDescriptionView(vm: vm)
                     
