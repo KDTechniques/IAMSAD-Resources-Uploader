@@ -10,7 +10,7 @@ import PhotosUI
 
 struct PhotoPickerView: UIViewControllerRepresentable {
     // MARK: - PROPERTIES
-    @Binding var fileName_ImageDataDictionary: [String: Data]
+    @Binding var fileName_ImageDataDictionary: [String : Data]
     
     // MARK: - INITIALIZER
     init(fileName_ImageDataDictionary: Binding<[String : Data]>) {

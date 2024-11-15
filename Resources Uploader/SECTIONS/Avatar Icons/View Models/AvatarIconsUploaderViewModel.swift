@@ -10,10 +10,11 @@ import _PhotosUI_SwiftUI
 @MainActor @Observable
 final class AvatarIconsUploaderViewModel {
     // MARK: - PROPERTIES
+    var selectedBucketType: BucketTypes = .mockTesting
     var collectionNameTextfieldText: String = ""
     var descriptionTextfieldText: String = ""
     var avatarCount: Int = 0
-    var selectedItems: [String:Data] = [:] { didSet { setAvatarCount() } }
+    var selectedItems: [String : Data] = [:] { didSet { setAvatarCount() } }
     @ObservationIgnored var selectedImages: [UIImage] {
         return selectedItems.values.compactMap { data in
             UIImage(data: data)
@@ -61,14 +62,39 @@ final class AvatarIconsUploaderViewModel {
         return true
     }
     
+    // MARK: - createObject
+    private func createObject() -> AvatarIconsStorageModel {
+        let model: AvatarIconsStorageModel = .init(
+            collectionName: collectionNameTextfieldText,
+            description: descriptionTextfieldText,
+            imageFileNamesNData: selectedItems,
+            avatarCount: avatarCount
+        )
+        return model
+    }
+    
+    // MARK: - uploadToStorageViaCloudFunction
+    private func uploadToStorageViaCloudFunction(_ model: AvatarIconsStorageModel) {
+        let storage: FirebaseStorageManager = .init(bucket: selectedBucketType)
+        
+        
+    }
+    
     // MARK: - upload
     func upload() {
-        // TODO: upload to firebase storage code goes here...
+        // Form Validation
         guard formValidation() else {
             // Show an alert here...
             print("Form validation failed!")
             return
         }
+        
+        // Gather Information to Create Model Object
+        let model: AvatarIconsStorageModel = createObject()
+        
+        // Call Cloud Function to Upload Model Data
+        uploadToStorageViaCloudFunction(model)
+        
         
 #if DEBUG
         // mock

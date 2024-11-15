@@ -22,9 +22,12 @@ struct AvatarIconsUploaderFormView: View {
                 Divider()
                 
                 Form {
+                    // Storage Bucket Type
+                    AvatarIconsStorageBucketPickerView(vm: vm)
+                    
                     // Collection Name
                     AvatarCollectionNameView(vm: vm)
-                        
+                    
                     // Description
                     AvatarCollectionDescriptionView(vm: vm)
                     

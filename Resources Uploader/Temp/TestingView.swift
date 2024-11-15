@@ -9,7 +9,7 @@ import SwiftUI
 
 struct ContentView: View {
     @State private var showPhotoPicker = false
-    @State private var fileName_ImageDataDictionary: [String:Data] = [:]
+    @State private var fileName_ImageDataDictionary: [String : Data] = [:]
     
     private var fileNamesArray: [String] {
         Array(fileName_ImageDataDictionary.keys)
