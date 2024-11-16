@@ -74,7 +74,9 @@ extension AvatarIconsUploaderFormView {
     // MARK: - uploadButton
     private var uploadButton: some View {
         Button("Upload") {
-            vm.upload()
+            Task {
+                await vm.upload()
+            }
         }
         .bold()
     }

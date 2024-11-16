@@ -25,6 +25,9 @@ struct AvatarCollectionNameView: View {
         } footer: {
             Text("Keep it short. ex: Featured, Super Heroes.")
         }
+        .onChange(of: vm.collectionNameTextfieldText) { _, newValue in
+            vm.onCollectionNameTextfieldTextChange(newValue)
+        }
     }
 }
 

@@ -37,7 +37,6 @@ struct PhotoPickerView: UIViewControllerRepresentable {
                         print("Error occurred while loading file URLs in Photo Picker: \(error.localizedDescription)")
                         continuation.resume(throwing: error)
                     } else if let url = url {
-                        print(url.lastPathComponent)
                         continuation.resume(returning: url.lastPathComponent)
                     } else {
                         continuation.resume(throwing: NSError(domain: "Unknown error", code: -1, userInfo: nil))

@@ -5,7 +5,8 @@
 //  Created by Mr. Kavinda Dilshan on 2024-11-04.
 //
 
-import _PhotosUI_SwiftUI
+import SwiftUI
+import FirebaseFunctions
 
 @MainActor @Observable
 final class AvatarIconsUploaderViewModel {
@@ -23,11 +24,17 @@ final class AvatarIconsUploaderViewModel {
     var selectedPosition: AvatarPositionTypes = .center
     var selectedProgressType: AvatarIconsUploadProgressTypes?
     let progressTypesArray: [AvatarIconsUploadProgressTypes] = AvatarIconsUploadProgressTypes.allCases
-    
+    @ObservationIgnored lazy var functions = Functions.functions()
+
     // MARK: - INITIALIZER
     init() { }
     
-    // MARK: - FUNCTIONS
+    // MARK: FUNCTIONS
+    
+    // MARK: - onCollectionNameTextfieldTextChange
+    func onCollectionNameTextfieldTextChange(_ newValue: String) {
+        collectionNameTextfieldText = newValue.capitalized
+    }
     
     // MARK: - getAvatarCount
     private func setAvatarCount() {
@@ -36,7 +43,9 @@ final class AvatarIconsUploaderViewModel {
     
     // MARK: - collectionNameValidation
     private func collectionNameValidation() -> Bool {
-        return !collectionNameTextfieldText.isEmpty
+        let condition1: Bool = collectionNameTextfieldText.capitalized == collectionNameTextfieldText
+        let condition2: Bool = !collectionNameTextfieldText.isEmpty
+        return condition1 && condition2
     }
     
     // MARK: - descriptionValidation
@@ -54,17 +63,56 @@ final class AvatarIconsUploaderViewModel {
         !selectedItems.isEmpty
     }
     
+    // MARK: - imageFileExtensionValidation
+    private func imageFileExtensionValidation() -> Bool {
+        for imageItem in selectedItems {
+            let fileName: String = imageItem.key
+            guard let _ = Helpers.extractFileExtension(fileName) else { return false }
+        }
+        return true
+    }
+    
     // MARK: - formValidation
     private func formValidation() -> Bool {
         guard collectionNameValidation(),
               descriptionValidation(),
-              avatarCountValidation() else { return false }
+              avatarCountValidation(),
+              ImageValidation(),
+              imageFileExtensionValidation() else { return false }
         return true
     }
     
-    // MARK: - createObject
-    private func createObject() -> AvatarIconsStorageModel {
-        let model: AvatarIconsStorageModel = .init(
+    // MARK: - createArrayOfImageDataModel
+    private func createArrayOfStorageImageDataModel() -> [AvatarIconsStorageImageDataModel] {
+        var tempArray: [AvatarIconsStorageImageDataModel] = []
+        for (fileName, data) in selectedItems {
+            guard let fileExtension: String = Helpers.extractFileExtension(fileName) else { return [] }
+            let model: AvatarIconsStorageImageDataModel = .init(
+                fileName: fileName,
+                fileExtension: fileExtension,
+                data: data
+            )
+            tempArray.append(model)
+        }
+        return tempArray
+    }
+    
+    // MARK: - createAvatarIconsStorageModelObject
+    private func createAvatarIconsStorageModelObject() async -> AvatarIconsStorageModel? {
+        let imageDataArray: [AvatarIconsStorageImageDataModel] = createArrayOfStorageImageDataModel()
+        guard !imageDataArray.isEmpty else { return nil }
+        let storageManager: FirebaseStorageManager = .init(bucket: selectedBucketType)
+        let model: AvatarIconsStorageModel = await .init(
+            bucketURL: storageManager.getFullReference(to: .avatarIcons).description,
+            folderName: collectionNameTextfieldText,
+            imageData: imageDataArray
+        )
+        return model
+    }
+    
+    // MARK: - createAvatarIconsFirestoreModelObject
+    private func createAvatarIconsFirestoreModelObject() -> AvatarIconsFirestoreModel {
+        let model: AvatarIconsFirestoreModel = .init(
             collectionName: collectionNameTextfieldText,
             description: descriptionTextfieldText,
             imageFileNamesNData: selectedItems,
@@ -74,28 +122,48 @@ final class AvatarIconsUploaderViewModel {
     }
     
     // MARK: - uploadToStorageViaCloudFunction
-    private func uploadToStorageViaCloudFunction(_ model: AvatarIconsStorageModel) {
-        let storage: FirebaseStorageManager = .init(bucket: selectedBucketType)
+    private func uploadToStorageViaCloudFunction(_ model: AvatarIconsStorageModel) async {
+        let requestData: [String: Any] = [
+            "bucketURL": model.bucketURL,
+            "AvatarIconsFolderName": model.folderName,
+            "imageData": model.imageData
+        ]
         
-        
+        do {
+            // Call the cloud function
+            let result = try await functions.httpsCallable("helloWorld").call("Hello")
+            if let response = result.data as? [String: Any],
+               let successMessage = response["message"] as? String {
+                print("Function Response: \(successMessage)")
+            }
+        } catch {
+            print("Error calling function: \(error.localizedDescription)")
+        }
     }
     
     // MARK: - upload
-    func upload() {
+    func upload() async {
         // Form Validation
         guard formValidation() else {
             // Show an alert here...
             print("Form validation failed!")
+            // show an alert here
             return
         }
         
-        // Gather Information to Create Model Object
-        let model: AvatarIconsStorageModel = createObject()
+        // Gather Information to Create Storage Model Object
+        guard let model: AvatarIconsStorageModel = await createAvatarIconsStorageModelObject() else {
+            print("Error getting 'AvatarIconsStorageModel'")
+            // show an alert here or someething...
+            return
+        }
         
         // Call Cloud Function to Upload Model Data
-        uploadToStorageViaCloudFunction(model)
+        await uploadToStorageViaCloudFunction(model)
         
         
+        
+        // MARK: - Note: the following code can be removed when needed
 #if DEBUG
         // mock
         guard let selectedProgressType = selectedProgressType else {

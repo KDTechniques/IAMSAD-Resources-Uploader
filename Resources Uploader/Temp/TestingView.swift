@@ -26,7 +26,7 @@ struct ContentView: View {
             }
             
             List(fileNamesArray, id: \.self) { fileName in
-                Text(fileName)
+                Text("file name: \(fileName), extension: \(Helpers.extractFileExtension(fileName) ?? "nil")")
             }
             
             ScrollView {

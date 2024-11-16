@@ -7,11 +7,14 @@
 
 import Foundation
 
+struct AvatarIconsStorageModel {
+    let bucketURL: String
+    let folderName: String
+    let imageData: [AvatarIconsStorageImageDataModel]
+}
 
-struct AvatarIconsStorageModel: Identifiable {
-    var id: String { collectionName }
-    let collectionName: String
-    let description: String
-    let imageFileNamesNData: [String : Data]
-    let avatarCount: Int
+struct AvatarIconsStorageImageDataModel {
+    let fileName: String
+    let fileExtension: String
+    let data: Data
 }
